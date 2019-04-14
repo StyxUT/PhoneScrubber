@@ -1,8 +1,38 @@
-using Xunit;
+using System.Collections;
+using System.Collections.Generic;
 using PhoneScrubber;
+using Xunit;
 
 namespace PhoneScurbberTests
 {
+
+    public class TestPlus1PhoneData : IEnumerable<object[]>
+    {
+        public IEnumerator<object[]> GetEnumerator()
+        {
+            // initiliazation of Disposition object, set Plus1Phone property, expected test result
+            yield return new object[] { new Disposition("+1.8011234567") { Plus1Phone = true }, "8011234567" };
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    public class TestScrubExtensionData : IEnumerable<object[]>
+    {
+        public IEnumerator<object[]> GetEnumerator()
+        {
+            // initiliazation of Disposition object, set HasExtension property, expected test result
+            yield return new object[] { new Disposition("8011234567x1234") { HasExtension = true }, "8011234567" };
+            yield return new object[] { new Disposition("801 1234567extension1234") { HasExtension = true }, "801 1234567" };
+            yield return new object[] { new Disposition("801 1234567ext1234") { HasExtension = true }, "801 1234567" };
+            yield return new object[] { new Disposition("801.123.4567 x1234") { HasExtension = true }, "801.123.4567" };
+            yield return new object[] { new Disposition("8011234567 x1234") { HasExtension = true }, "8011234567" };
+            yield return new object[] { new Disposition("1-8011234567ext1234") { HasExtension = true }, "1-8011234567" };
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
     public class ParsePhoneTests
     {
         [Theory]
@@ -10,7 +40,7 @@ namespace PhoneScurbberTests
         [InlineData("801.123.4567", "8011234567")]
         [InlineData("801 123/4567x1234", "80112345671234")]
         [InlineData("+1.0123456789", "10123456789")]
-        public void TestDigitsOnly(string phone, string expected)
+        private void TestDigitsOnly(string phone, string expected)
         {
             Parser parser = new Parser();
 
@@ -18,65 +48,22 @@ namespace PhoneScurbberTests
         }
 
         [Theory]
-        [InlineData("(801)123-4567", false)]
-        [InlineData("801.123.4567",  false)]
-        [InlineData("801 1234567x1234", true)]
-        [InlineData("801 123/4567extension1234", true)]
-        [InlineData("801 123.4567ext1234", true)]
-        public void TestHasExtension(string phone, bool expected)
+        [ClassData(typeof(TestPlus1PhoneData))]
+        private void TestScrubPlus1Phone(Disposition d, string expected)
         {
             Parser parser = new Parser();
-
-            Assert.Equal(parser.HasExtension(phone), expected);
+            parser.ScrubPlus1Phone(d);
+            Assert.Matches(d.Phone, expected);
         }
 
         [Theory]
-        [InlineData("(727) 400-3253", true)]
-        [InlineData("1801 1234567", false)]
-        [InlineData("(801)1234567", false)]
-        [InlineData("982 009-8200", false)]
-        [InlineData("+1(503)941-6610", false)]
-        [InlineData("(503)941-6610", false)]
-        [InlineData("(727) 400.3253", false)]
-        [InlineData("(727) 400 3253", false)]
-        [InlineData("(503) 9416610", false)]
-        [InlineData("1(727) 400-3253", false)]
-        [InlineData("(727)400 3253", false)]
-        public void TestIsDNCValidPhone(string phone, bool expected)
+        [ClassData(typeof(TestScrubExtensionData))]
+        private void TestScrubExtension(Disposition d, string expected)
         {
             Parser parser = new Parser();
+            parser.ScrubExtension(d);
 
-            Assert.Equal(parser.IsDNCValidPhone(phone), expected);
-        }
-
-        [Theory]
-        [InlineData("+1.0123456789", true)]
-        [InlineData("1(801)123.4567", false)]
-        [InlineData("1801 1234567", false)]
-        [InlineData("1.8011234567", false)]
-        [InlineData("+18011234567", false)]
-        [InlineData("01234567890", false)]
-        [InlineData(".0123456789", false)]
-        [InlineData("+1.01234567890", false)]
-        [InlineData("+1.012345678", false)]
-        public void TestIsPlus1Phone(string phone, bool expected)
-        {
-            Parser parser = new Parser();
-
-            Assert.Equal(parser.IsPlus1Phone(phone), expected);
-        }
-
-        [Theory]
-        [InlineData("1(801)123.4567", true)]
-        [InlineData("1801 1234567", true)]
-        [InlineData("801 1234567", true)]
-        [InlineData("9820098200", true)]
-        [InlineData("+1.5039416610", true)]
-        public void TestIsValidPhone(string phone, bool expected)
-        {
-            Parser parser = new Parser();
-
-            Assert.Equal(parser.IsValidPhone(phone), expected);
+            Assert.Matches(d.Phone, expected);
         }
     }
 }

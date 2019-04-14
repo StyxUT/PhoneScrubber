@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28729.10
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PhoneScrubber", "\\Synology\home\PhoneScrubber\PhoneScrubber\PhoneScrubber.csproj", "{D0876E9C-5B8B-4B5D-A416-E1B379D6BF17}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PhoneScrubber", "PhoneScrubber\PhoneScrubber.csproj", "{D0876E9C-5B8B-4B5D-A416-E1B379D6BF17}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PhoneScrubber.Tests", "\\Synology\home\PhoneScrubber\PhoneScrubber.Tests\PhoneScrubber.Tests.csproj", "{62C4E529-E1AA-4BF9-B8B3-FD3CCBB01BAA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PhoneScrubber.Tests", "PhoneScrubber.Tests\PhoneScrubber.Tests.csproj", "{62C4E529-E1AA-4BF9-B8B3-FD3CCBB01BAA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,5 +27,11 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1B826B47-8D3E-4BFE-8139-CA76361FB039}
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		Policies = $0
+		$0.DotNetNamingPolicy = $1
+		$1.DirectoryNamespaceAssociation = PrefixedHierarchical
+		$0.StandardHeader = $2
 	EndGlobalSection
 EndGlobal

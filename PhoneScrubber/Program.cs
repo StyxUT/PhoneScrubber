@@ -27,19 +27,27 @@ namespace Program
 
                 var records = csv.GetRecords<DNCScrub>();
 
-                Parallel.ForEach(records, new ParallelOptions { MaxDegreeOfParallelism = int.MaxValue}, record =>
-                {
-                    if (Thread.CurrentThread.Name == null)
-                    {
-                        Thread.CurrentThread.Name = Thread.CurrentThread.ManagedThreadId.ToString();
-                    }
-                    Console.WriteLine("Start Thread: " + Thread.CurrentThread.Name + "; " + record.CaseSafeID);
+                Parallel.ForEach(records, new ParallelOptions { MaxDegreeOfParallelism = int.MaxValue }, record =>
+                  {
+                      if (Thread.CurrentThread.Name == null)
+                      {
+                          Thread.CurrentThread.Name = Thread.CurrentThread.ManagedThreadId.ToString();
+                      }
+                      //Console.WriteLine("Start Thread: " + Thread.CurrentThread.Name + "; " + record.CaseSafeID);
 
-                    Parser parser = new Parser();
-                    parser.ParseRecord(record);
+                      Parser parser = new Parser();
+                      parser.ParseRecord(record);
 
-                    Console.WriteLine("End Thread: " + Thread.CurrentThread.Name + "; " + record.CaseSafeID);
-                });
+                      if (record.BusinessPhone != null)
+                          Console.WriteLine(record.BusinessPhone + "  :  " + record.ScrubbedBusinessPhone);
+
+                      if (record.RegistrationPhone != null)
+                          Console.WriteLine(record.RegistrationPhone + "  :  " + record.ScrubbedRegistrationPhone);
+
+                      if (record.WidgetPhone != null)
+                          Console.WriteLine(record.WidgetPhone + "  :  " + record.ScrubbedWidgetPhone);
+                      //Console.WriteLine("End Thread: " + Thread.CurrentThread.Name + "; " + record.CaseSafeID);
+                  });
             }
         }
 
