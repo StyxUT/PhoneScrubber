@@ -1,6 +1,6 @@
+using PhoneScrubber;
 using System.Collections;
 using System.Collections.Generic;
-using PhoneScrubber;
 using Xunit;
 
 namespace PhoneScurbberTests
@@ -25,8 +25,8 @@ namespace PhoneScurbberTests
             yield return new object[] { new Disposition("8011234567x1234") { HasExtension = true }, "8011234567" };
             yield return new object[] { new Disposition("801 1234567extension1234") { HasExtension = true }, "801 1234567" };
             yield return new object[] { new Disposition("801 1234567ext1234") { HasExtension = true }, "801 1234567" };
-            yield return new object[] { new Disposition("801.123.4567 x1234") { HasExtension = true }, "801.123.4567" };
-            yield return new object[] { new Disposition("8011234567 x1234") { HasExtension = true }, "8011234567" };
+            yield return new object[] { new Disposition("801.123.4567 x1234") { HasExtension = true }, "801.123.4567 " };
+            yield return new object[] { new Disposition("8011234567 x1234") { HasExtension = true }, "8011234567 " };
             yield return new object[] { new Disposition("1-8011234567ext1234") { HasExtension = true }, "1-8011234567" };
         }
 
@@ -44,7 +44,7 @@ namespace PhoneScurbberTests
         {
             Parser parser = new Parser();
 
-            Assert.Matches(parser.DigitsOnly(phone), expected);
+            Assert.Matches(expected, parser.DigitsOnly(phone));
         }
 
         [Theory]
@@ -53,7 +53,7 @@ namespace PhoneScurbberTests
         {
             Parser parser = new Parser();
             parser.ScrubPlus1Phone(d);
-            Assert.Matches(d.Phone, expected);
+            Assert.Matches(expected, d.Phone);
         }
 
         [Theory]
@@ -63,7 +63,7 @@ namespace PhoneScurbberTests
             Parser parser = new Parser();
             parser.ScrubExtension(d);
 
-            Assert.Matches(d.Phone, expected);
+            Assert.Matches(expected, d.Phone);
         }
     }
 }

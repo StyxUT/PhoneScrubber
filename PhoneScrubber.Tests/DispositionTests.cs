@@ -15,7 +15,7 @@ namespace PhoneScrubber.Tests
             Disposition disposition = new Disposition(phone);
             disposition.ContainsExtension(disposition.Phone);
 
-            Assert.Equal(disposition.HasExtension, expected);
+            Assert.Equal(expected, disposition.HasExtension);
         }
 
         [Theory]
@@ -38,7 +38,7 @@ namespace PhoneScrubber.Tests
             Disposition disposition = new Disposition(phone);
             disposition.IsDNCValidPhone(disposition.Phone);
 
-            Assert.Equal(disposition.DNCValidPhone, expected);
+            Assert.Equal(expected, disposition.DNCValidPhone);
         }
 
         [Theory]
@@ -56,7 +56,7 @@ namespace PhoneScrubber.Tests
             Disposition disposition = new Disposition(phone);
             disposition.IsPlus1Phone(disposition.Phone);
 
-            Assert.Equal(disposition.Plus1Phone, expected);
+            Assert.Equal(expected, disposition.Plus1Phone);
         }
 
         [Theory]
@@ -70,7 +70,7 @@ namespace PhoneScrubber.Tests
             Disposition disposition = new Disposition(phone);
             disposition.IsValidPhone(disposition.Phone);
 
-            Assert.Equal(disposition.ValidPhone, expected);
+            Assert.Equal(expected, disposition.ValidPhone);
         }
     }
 }

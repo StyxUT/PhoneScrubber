@@ -95,6 +95,8 @@ namespace PhoneScrubber
 
             return vaidPhone.IsMatch(phone);
         }
+
+
     }
 
 }

@@ -104,7 +104,7 @@ namespace PhoneScrubber
             }
             catch (Exception ex)
             {
-                Console.WriteLine(d.Phone + " - Error Recevived: " + ex.Message);
+                Console.WriteLine(d.Phone + " - Error Received: " + ex.Message);
                 d.CannotBeParsed = true;
             }
         }
@@ -123,7 +123,7 @@ namespace PhoneScrubber
             }
             catch (Exception ex)
             {
-                Console.WriteLine(d.Phone + " - Error Recevived: " + ex.Message);
+                Console.WriteLine(d.Phone + " - Error Received: " + ex.Message);
                 d.CannotBeParsed = true;
             }
         }

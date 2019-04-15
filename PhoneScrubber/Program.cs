@@ -38,13 +38,13 @@ namespace Program
                       Parser parser = new Parser();
                       parser.ParseRecord(record);
 
-                      if (record.BusinessPhone != null)
+                      if (record.BusinessPhone != null && record.BusinessPhone.Length > 0)
                           Console.WriteLine(record.BusinessPhone + "  :  " + record.ScrubbedBusinessPhone);
 
-                      if (record.RegistrationPhone != null)
+                      if (record.RegistrationPhone != null && record.RegistrationPhone.Length > 0)
                           Console.WriteLine(record.RegistrationPhone + "  :  " + record.ScrubbedRegistrationPhone);
 
-                      if (record.WidgetPhone != null)
+                      if (record.WidgetPhone != null && record.WidgetPhone.Length > 0)
                           Console.WriteLine(record.WidgetPhone + "  :  " + record.ScrubbedWidgetPhone);
                       //Console.WriteLine("End Thread: " + Thread.CurrentThread.Name + "; " + record.CaseSafeID);
                   });
