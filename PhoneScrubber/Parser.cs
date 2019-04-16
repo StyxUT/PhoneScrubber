@@ -12,22 +12,19 @@ namespace PhoneScrubber
             if (record.BusinessPhone != "")
             {
                 Disposition dBusinessPhone = new Disposition(record.BusinessPhone);
-                Console.WriteLine(Thread.CurrentThread.Name + " - " + record.CaseSafeID + " (BusinessPhone):  " + dBusinessPhone.Phone + ", " + dBusinessPhone.Plus1Phone + ", " + dBusinessPhone.HasExtension + ", " + dBusinessPhone.ValidPhone + ", " + dBusinessPhone.DNCValidPhone);
                 record.ScrubbedBusinessPhone = ParsePhone(dBusinessPhone);
             }
 
             if (record.WidgetPhone != "")
             {
                 Disposition dWidgetPhone = new Disposition(record.WidgetPhone);
-                Console.WriteLine(Thread.CurrentThread.Name + " - " + record.CaseSafeID + " (pdWidgetPhone):  " + dWidgetPhone.Phone + ", " + dWidgetPhone.Plus1Phone + ", " + dWidgetPhone.HasExtension + ", " + dWidgetPhone.ValidPhone + ", " + dWidgetPhone.DNCValidPhone);
-                record.WidgetPhone = ParsePhone(dWidgetPhone);
+                record.ScrubbedWidgetPhone = ParsePhone(dWidgetPhone);
             }
 
             if (record.RegistrationPhone != "")
             {
                 Disposition dRegistrationPhone = new Disposition(record.RegistrationPhone);
-                Console.WriteLine(Thread.CurrentThread.Name + " - " + record.CaseSafeID + " (RegistrationPhone):  " + dRegistrationPhone.Phone + ", " + dRegistrationPhone.Plus1Phone + ", " + dRegistrationPhone.HasExtension + ", " + dRegistrationPhone.ValidPhone + ", " + dRegistrationPhone.DNCValidPhone);
-                record.RegistrationPhone = ParsePhone(dRegistrationPhone);
+                record.ScrubbedRegistrationPhone = ParsePhone(dRegistrationPhone);
             }
 
             return record;
@@ -41,6 +38,7 @@ namespace PhoneScrubber
                 if (DigitsOnly(disposition.Phone).Length < 10)
                 {
                     disposition.CannotBeParsed = true;
+                    disposition.Phone = "Too few digits.";
                 }
                 // parse a +1.########## formatted phone number
                 else if (disposition.Plus1Phone)
@@ -82,6 +80,7 @@ namespace PhoneScrubber
                     else
                     {
                         disposition.CannotBeParsed = true;
+                        disposition.Phone = "Could not parse.";
                     }
                 }
 

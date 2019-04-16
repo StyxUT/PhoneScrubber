@@ -1,14 +1,32 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using CsvHelper;
 
 namespace PhoneScrubber
 {
-    class FileLoader
+    static class FileLoader
     {
-        public string[] LoadFile(string filePath)
+        /// <summary>
+        /// Load formatted file with phone numbers to be scrubbed.
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns>IEnumerable<DNCScrub> - loaded phone records</returns>
+        static public IEnumerable<DNCScrub> LoadFile(string filePath)
         {
-            string[] lines = File.ReadAllLines(filePath);
+            Console.WriteLine(@"Loading file:  " + filePath);
+            using (var reader = new StreamReader(@filePath))
+            using (var csv = new CsvReader(reader))
+            {
+                csv.Configuration.HasHeaderRecord = true;
+                csv.Configuration.HeaderValidated = null;
+                csv.Configuration.MissingFieldFound = null;
 
-            return lines;
+                var records = csv.GetRecords<DNCScrub>();
+
+                return records;
+            }
         }
+
     }
 }
