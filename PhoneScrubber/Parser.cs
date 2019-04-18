@@ -32,7 +32,7 @@ namespace PhoneScrubber
 
         public string ParsePhone(Disposition disposition)
         {
-            while (!disposition.DNCValidPhone && !disposition.CannotBeParsed)
+            while (!disposition.DNCValidPhone() && !disposition.CannotBeParsed)
             {
                 // don't bother to parse if there are less than 10 digits
                 if (DigitsOnly(disposition.Phone).Length < 10)
@@ -41,28 +41,28 @@ namespace PhoneScrubber
                     disposition.Phone = "Too few digits.";
                 }
                 // parse a +1.########## formatted phone number
-                else if (disposition.Plus1Phone)
+                else if (disposition.Plus1Phone())
                 {
                     ScrubPlus1Phone(disposition);
                 }
                 // attempt to parse out the extension from a phone number
-                else if (disposition.HasExtension)
+                else if (disposition.HasExtension())
                 {
                     ScrubExtension(disposition);
 
                     string scrubbedPhone = DigitsOnly(disposition.Phone);
-                    if (disposition.IsValidPhone(scrubbedPhone))
+                    if (disposition.ValidPhone())
                     {
                         disposition.Phone = scrubbedPhone;
                     }
                 }
                 // attempt to parse a generally valid phone number
-                else if (disposition.ValidPhone)
+                else if (disposition.ValidPhone())
                 {
                     string scrubbedPhone = DigitsOnly(disposition.Phone);
                     scrubbedPhone = scrubbedPhone.Substring(scrubbedPhone.Length - 10, 10);
 
-                    if (disposition.IsValidPhone(scrubbedPhone))
+                    if (disposition.ValidPhone())
                     {
                         disposition.Phone = scrubbedPhone;
                     }
@@ -73,7 +73,7 @@ namespace PhoneScrubber
                     string scrubbedPhone = DigitsOnly(disposition.Phone);
                     scrubbedPhone = scrubbedPhone.Substring(scrubbedPhone.Length - 10, 10);
 
-                    if (disposition.IsValidPhone(scrubbedPhone))
+                    if (disposition.ValidPhone())
                     {
                         disposition.Phone = scrubbedPhone;
                     }
@@ -83,8 +83,6 @@ namespace PhoneScrubber
                         disposition.Phone = "Could not parse.";
                     }
                 }
-
-                disposition.DetermineDisposition();
             }
 
             return disposition.Phone;
