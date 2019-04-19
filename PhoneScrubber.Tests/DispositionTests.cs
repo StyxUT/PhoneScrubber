@@ -1,19 +1,30 @@
 ﻿using Xunit;
+using Shouldly;
 
 namespace PhoneScrubber.Tests
 {
   public class DispositionTests
   {
     [Theory]
-    [InlineData("(801)123-4567", false)]
-    [InlineData("801.123.4567", false)]
-    [InlineData("801 1234567x1234", true)]
-    [InlineData("801 123/4567ete1234", true)]
-    [InlineData("801 123.4567ext1234", true)]
-    public void TestHasExtension(string phone, bool expected)
+    [InlineData("(801)123-4567x1234")]
+    [InlineData("801 1234567x1234")]
+    [InlineData("801 123/4567ete1234")]
+    [InlineData("801 123.4567ext1234")]
+    [InlineData("(916) 242-0144 use ext. 2")]
+    public void HasExtension_ShouldBeTrue(string phone)
     {
       Disposition disposition = new Disposition(phone);
-      Assert.Equal(expected, disposition.HasExtension());
+      disposition.HasExtension().ShouldBeTrue();
+    }
+
+    [Theory]
+    [InlineData("(801)123-4567")]
+    [InlineData("801.123.4567")]
+    [InlineData("801-123-4567")]
+    public void HasExtension_ShouldBeFalse(string phone)
+    {
+      var disposition = new Disposition(phone);
+      disposition.HasExtension().ShouldBeFalse();
     }
 
     [Theory]
@@ -34,7 +45,7 @@ namespace PhoneScrubber.Tests
     public void TestIsDNCValidPhone(string phone, bool expected)
     {
       Disposition disposition = new Disposition(phone);
-      Assert.Equal(expected, disposition.DNCValidPhone());
+      disposition.DNCValidPhone().ShouldBe(expected);
     }
 
     [Theory]
@@ -50,7 +61,7 @@ namespace PhoneScrubber.Tests
     public void TestIsPlus1Phone(string phone, bool expected)
     {
       Disposition disposition = new Disposition(phone);
-      Assert.Equal(expected, disposition.Plus1Phone());
+      disposition.Plus1Phone().ShouldBe(expected);
     }
 
     [Theory]
@@ -62,7 +73,7 @@ namespace PhoneScrubber.Tests
     public void TestIsValidPhone(string phone, bool expected)
     {
       Disposition disposition = new Disposition(phone);
-      Assert.Equal(expected, disposition.ValidPhone());
+      disposition.ValidPhone().ShouldBe(expected);
     }
   }
 }
