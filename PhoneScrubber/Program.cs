@@ -13,6 +13,7 @@ namespace PhoneScrubber
     static Dictionary<string, int> Results = new Dictionary<string, int>() {
       { "Success", 0 },
       { "Error", 0 },
+      { "Null or Empty", 0 }
     };
     static readonly List<ScrubbedOutput> Output = new List<ScrubbedOutput>();
     private const string Region = "US";
@@ -79,17 +80,20 @@ namespace PhoneScrubber
         if (Thread.CurrentThread.Name == null)
           Thread.CurrentThread.Name = Thread.CurrentThread.ManagedThreadId.ToString();
 
-        if (!string.IsNullOrWhiteSpace(record.BusinessPhone))
-          ParseNumber(record.CaseSafeID, record.BusinessPhone);
-        if (!string.IsNullOrWhiteSpace(record.WidgetPhone))
-          ParseNumber(record.CaseSafeID, record.WidgetPhone);
-        if (!string.IsNullOrWhiteSpace(record.RegistrationPhone))
-          ParseNumber(record.CaseSafeID, record.RegistrationPhone);
+        TryParseNumber(record.CaseSafeID, record.BusinessPhone);
+        TryParseNumber(record.CaseSafeID, record.WidgetPhone);
+        TryParseNumber(record.CaseSafeID, record.RegistrationPhone);
       });
     }
 
-    private static void ParseNumber(string id, string value)
+    private static void TryParseNumber(string id, string value)
     {
+      if (string.IsNullOrWhiteSpace(value))
+      {
+        AddResult("Null or Empty");
+        return;
+      }
+
       try
       {
         var phoneUtil = PhoneNumbers.PhoneNumberUtil.GetInstance();
