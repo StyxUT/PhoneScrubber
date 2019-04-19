@@ -7,23 +7,14 @@ namespace PhoneScrubber
   {
     public static DNCScrub ParseRecord(DNCScrub record)
     {
-      if (!string.IsNullOrWhiteSpace(record.BusinessPhone))
-      {
-        Disposition dBusinessPhone = new Disposition(record.BusinessPhone);
-        record.ScrubbedBusinessPhone = ParsePhone(dBusinessPhone);
-      }
+      record.ScrubbedBusinessPhone = new Disposition(record.BusinessPhone);
+      ParsePhone(record.ScrubbedBusinessPhone);
 
-      if (!string.IsNullOrWhiteSpace(record.WidgetPhone))
-      {
-        Disposition dWidgetPhone = new Disposition(record.WidgetPhone);
-        record.ScrubbedWidgetPhone = ParsePhone(dWidgetPhone);
-      }
+      record.ScrubbedWidgetPhone = new Disposition(record.WidgetPhone);
+      ParsePhone(record.ScrubbedWidgetPhone);
 
-      if (!string.IsNullOrWhiteSpace(record.RegistrationPhone))
-      {
-        Disposition dRegistrationPhone = new Disposition(record.RegistrationPhone);
-        record.ScrubbedRegistrationPhone = ParsePhone(dRegistrationPhone);
-      }
+      record.ScrubbedRegistrationPhone = new Disposition(record.RegistrationPhone);
+      ParsePhone(record.ScrubbedRegistrationPhone);
 
       return record;
     }
@@ -35,13 +26,24 @@ namespace PhoneScrubber
     /// <param name="disposition">Disposition.</param>
     public static string ParsePhone(Disposition disposition)
     {
+      if (string.IsNullOrWhiteSpace(disposition.Value))
+      {
+        disposition.SetValue("Null or Empty");
+        return disposition.Value;
+      }
+
+      if (disposition.IsEmailAddress())
+      {
+        disposition.SetValue("Email Address");
+        return disposition.Value;
+      }
+
       while (!disposition.DNCValidPhone() && !disposition.CannotBeParsed)
       {
         // don't bother to parse if there are less than 10 digits
-        if (DigitsOnly(disposition.Phone).Length < 10)
+        if (DigitsOnly(disposition.Value).Length < 10)
         {
-          disposition.CannotBeParsed = true;
-          disposition.Phone = "Too few digits.";
+          disposition.SetValue("Too few digits");
         }
         // parse a +1.########## formatted phone number
         else if (disposition.Plus1Phone())
@@ -56,19 +58,18 @@ namespace PhoneScrubber
         else
         {
           // attempt to parse a generally valid phone number
-          string scrubbedPhone = DigitsOnly(disposition.Phone);
+          string scrubbedPhone = DigitsOnly(disposition.Value);
           scrubbedPhone = scrubbedPhone.Substring(scrubbedPhone.Length - 10, 10);
-          disposition.Phone = scrubbedPhone;
+          disposition.Value = scrubbedPhone;
 
           if (!disposition.ValidPhone())
           {
-            disposition.CannotBeParsed = true;
-            disposition.Phone = "Could not parse.";
+            disposition.SetValue("Could not parse.");
           }
         }
       }
 
-      return disposition.Phone;
+      return disposition.Value;
     }
 
     /// <summary>
@@ -79,13 +80,13 @@ namespace PhoneScrubber
     {
       try
       {
-        d.Phone = d.Phone.Substring(3, 10);
-        d.Phone = DigitsOnly(d.Phone);
+        d.Value = d.Value.Substring(3, 10);
+        d.Value = DigitsOnly(d.Value);
       }
       catch (Exception ex)
       {
-        Console.WriteLine(d.Phone + " - Error Received: " + ex.Message);
-        d.CannotBeParsed = true;
+        Console.WriteLine($"{d.Value} - Error Received: {ex.Message}");
+        d.SetValue("Error Received");
       }
     }
 
@@ -97,13 +98,13 @@ namespace PhoneScrubber
     {
       try
       {
-        string[] phoneParts = d.Phone.Split(Disposition.ExtensionIndicators, StringSplitOptions.None);
-        d.Phone = phoneParts[0];
+        string[] phoneParts = d.Value.Split(Disposition.ExtensionIndicators, StringSplitOptions.None);
+        d.Value = phoneParts[0];
       }
       catch (Exception ex)
       {
-        Console.WriteLine(d.Phone + " - Error Received: " + ex.Message);
-        d.CannotBeParsed = true;
+        Console.WriteLine($"{d.Value} - Error Received: {ex.Message}");
+        d.SetValue("Error Received");
       }
     }
 
@@ -112,6 +113,11 @@ namespace PhoneScrubber
     /// </summary>
     /// <returns>Phone number stripped of any non-integers</returns>
     /// <param name="phone">Phone number.</param>
-    public static string DigitsOnly(string phone) => Regex.Replace(phone, @"[^\d]", "");
+    public static string DigitsOnly(string phone)
+    {
+      if (string.IsNullOrWhiteSpace(phone))
+        return "";
+      return Regex.Replace(phone, @"[^\d]", "");
+    }
   }
 }

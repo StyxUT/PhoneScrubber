@@ -13,7 +13,7 @@ namespace PhoneScurbberTests
     [InlineData("801.123.4567", "8011234567")]
     [InlineData("801 123/4567x1234", "80112345671234")]
     [InlineData("+1.0123456789", "10123456789")]
-    private void TestDigitsOnly(string phone, string expected)
+    private void DigitsOnly_ShouldPass(string phone, string expected)
     {
       // arrange
       // act
@@ -34,7 +34,7 @@ namespace PhoneScurbberTests
       Parser.ScrubPlus1Phone(d);
 
       // assert
-      d.Phone.ShouldBe(expected);
+      d.Value.ShouldBe(expected);
     }
 
     [Theory]
@@ -55,15 +55,16 @@ namespace PhoneScurbberTests
       Parser.ScrubExtension(d);
 
       // assert
-      d.Phone.ShouldBe(expected);
+      d.Value.ShouldBe(expected);
     }
 
     [Theory]
     [InlineData("1 (801)123-4567", "8011234567")]
     [InlineData("(801)123-4567", "8011234567")]
     [InlineData("(916) 242-0144 use ext. 2", "9162420144")]
-    [InlineData("1-800-123-4567", "18001234567")]
-    [InlineData("1-800-GOT-CHKS", "18004682457")]
+    [InlineData("1-800-123-4567", "8001234567")]
+    [InlineData("800 eat-food", "8003283663")]
+    [InlineData("1-900-GOT-CHKS", "9004682457")]
     private void ParsePhone_ShouldPass(string phone, string expected)
     {
       // arrange
@@ -74,11 +75,29 @@ namespace PhoneScurbberTests
 
       // assert
       result.ShouldBe(expected);
+      d.CannotBeParsed.ShouldBeFalse();
     }
 
     [Theory]
-    [InlineData(null)]
+    [InlineData(" ")]
     [InlineData("")]
+    [InlineData(null)]
+    private void ParsePhone_NullOrEmpty_ShouldFail(string phone)
+    {
+      // arrange
+      var d = new Disposition(phone);
+
+      // act
+      var result = Parser.ParsePhone(d);
+
+      // assert
+      result.ShouldBe("Null or Empty");
+      d.CannotBeParsed.ShouldBeTrue();
+    }
+
+    [Theory]
+    [InlineData("123 N 450 W")]
+    [InlineData("123-4567")]
     [InlineData("51 205 3594")]
     private void ParsePhone_TooFewDigits_ShouldFail(string phone)
     {
@@ -89,21 +108,38 @@ namespace PhoneScurbberTests
       var result = Parser.ParsePhone(d);
 
       // assert
-      result.ShouldBe("Too few digits.");
+      result.ShouldBe("Too few digits");
+      d.CannotBeParsed.ShouldBeTrue();
     }
 
     [Theory]
-    [InlineData("1-800-999-99999")]
-    private void ParsePhone_CouldNotParse_ShouldFail(string phone)
+    [InlineData("2164 W 1100 S Syracuse UT, 84075")]
+    private void ParsePhone_Value_ShouldFail(string value)
     {
       // arrange
-      var d = new Disposition(phone);
+      var d = new Disposition(value);
 
       // act
       var result = Parser.ParsePhone(d);
 
       // assert
-      result.ShouldBe("Could not parse.");
+      result.ShouldBe("Could not parse");
+    }
+
+    [Theory]
+    [InlineData("jgotti@marketstar.com")]
+    [InlineData("eric.barnes@mail.org")]
+    private void ParsePhone_EmailAddress_ShouldFail(string value)
+    {
+      // arrange
+      var d = new Disposition(value);
+
+      // act
+      var result = Parser.ParsePhone(d);
+
+      // assert
+      result.ShouldBe("Email Address");
+      d.CannotBeParsed.ShouldBeTrue();
     }
   }
 }

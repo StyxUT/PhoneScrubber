@@ -10,8 +10,9 @@ namespace PhoneScrubber
 {
   class Program
   {
-
-    static int phoneCount = 0;
+    static Dictionary<string, int> Results = new Dictionary<string, int>() {
+      { "Success", 0 }
+    };
     static readonly List<ScrubbedOutput> Output = new List<ScrubbedOutput>();
 
     static void Main(string[] args)
@@ -34,7 +35,8 @@ namespace PhoneScrubber
       string outputFile = Path.GetDirectoryName(path) + "\\" + Path.GetFileNameWithoutExtension(path) + "-scrubbed.csv";
 
       // load the phone records
-      Console.WriteLine(@"Loading file:  " + path);
+      Console.WriteLine($"Loading file: {path}");
+
       using (var reader = new StreamReader(@path))
       using (var csv = new CsvReader(reader))
       {
@@ -54,9 +56,12 @@ namespace PhoneScrubber
       stopwatch.Stop();
       TimeSpan timeSpan = stopwatch.Elapsed;
 
-      // write processing during to console
       Console.ForegroundColor = ConsoleColor.Blue;
-      Console.WriteLine(String.Format("Processed {0:N0} phone numbers in {1:ss\\.ffff} seconds.", phoneCount, timeSpan));
+      Console.WriteLine($"Processed: {timeSpan:ss\\.ffff} seconds.");
+      foreach(var key in Results.Keys)
+      {
+        Console.WriteLine($"\t{key}: {Results[key]:N0}");
+      }
       Console.ResetColor();
 
     }
@@ -74,7 +79,7 @@ namespace PhoneScrubber
           Thread.CurrentThread.Name = Thread.CurrentThread.ManagedThreadId.ToString();
 
         Parser.ParseRecord(record);
-        ProcessOutput(record);
+        ProccessRecordOutput(record);
       });
     }
 
@@ -82,30 +87,37 @@ namespace PhoneScrubber
     /// Print phone record to console and add results to Output collection
     /// </summary>
     /// <param name="record">instance of a DNCScrub </param>
-    private static void ProcessOutput(DNCScrub record)
+    private static void ProccessRecordOutput(DNCScrub record)
     {
-      if (!string.IsNullOrEmpty(record.BusinessPhone))
+      void AddResult(string key)
       {
-        Console.WriteLine(record.BusinessPhone + "  ->  " + record.ScrubbedBusinessPhone);
-        Output.Add(new ScrubbedOutput(record.CaseSafeID, record.BusinessPhone, record.ScrubbedBusinessPhone));
-        phoneCount++;
+        Results.TryGetValue(key, out var i);
+        Results[key] = i + 1;
       }
 
-      if (!string.IsNullOrEmpty(record.RegistrationPhone))
+      void Check(string id, string original, Disposition d)
       {
-        Console.WriteLine(record.RegistrationPhone + "  ->  " + record.ScrubbedRegistrationPhone);
-        Output.Add(new ScrubbedOutput(record.CaseSafeID, record.RegistrationPhone, record.ScrubbedRegistrationPhone));
-        phoneCount++;
+        if (d.CannotBeParsed)
+        {
+          if (!Results.ContainsKey(d.Value))
+            Results.Add(d.Value, 0);
+          AddResult(d.Value);
+          return;
+        }
+
+        Console.WriteLine($"{original}  ->  {d.Value}");
+        Output.Add(new ScrubbedOutput(id, original, d.Value));
+        AddResult("Success");
       }
+
+      if (record.ScrubbedBusinessPhone.CannotBeParsed)
+        Check(record.CaseSafeID, record.BusinessPhone, record.ScrubbedBusinessPhone);
+
+      if (!record.ScrubbedRegistrationPhone.CannotBeParsed)
+        Check(record.CaseSafeID, record.RegistrationPhone, record.ScrubbedRegistrationPhone);
 
       if (!string.IsNullOrEmpty(record.WidgetPhone))
-      {
-        Console.WriteLine(record.WidgetPhone + "  ->  " + record.ScrubbedWidgetPhone);
-        Output.Add(new ScrubbedOutput(record.CaseSafeID, record.WidgetPhone, record.ScrubbedWidgetPhone));
-        phoneCount++;
-      }
-
+        Check(record.CaseSafeID, record.WidgetPhone, record.ScrubbedWidgetPhone);
     }
-
   }
 }

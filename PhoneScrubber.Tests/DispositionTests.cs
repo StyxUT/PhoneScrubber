@@ -66,6 +66,8 @@ namespace PhoneScrubber.Tests
 
     [Theory]
     [InlineData("1(801)123.4567", true)]
+    [InlineData("+1.801.123.4567", true)]
+    [InlineData("801-123-4567", true)]
     [InlineData("1801 1234567", true)]
     [InlineData("801 1234567", true)]
     [InlineData("9820098200", true)]
