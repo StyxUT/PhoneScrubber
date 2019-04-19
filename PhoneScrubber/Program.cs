@@ -35,7 +35,7 @@ namespace PhoneScrubber
       stopwatch.Start();
 
       string path = args[0];
-      string outputFile = Path.GetDirectoryName(path) + "\\" + Path.GetFileNameWithoutExtension(path) + "-scrubbed.csv";
+      string outputFile = $"{Path.GetDirectoryName(path)}/{Path.GetFileNameWithoutExtension(path)}-scrubbed.csv";
 
       // load the phone records
       Console.WriteLine($"Loading file: {path}");
