@@ -7,6 +7,11 @@
 
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="12.1.2" />
+    <PackageReference Include="libphonenumber-csharp" Version="8.10.10" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Disposition.cs" />
+    <Compile Remove="Parser.cs" />
+  </ItemGroup>
 </Project>

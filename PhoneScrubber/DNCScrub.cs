@@ -15,12 +15,5 @@ namespace PhoneScrubber
 
     [Index(3)]
     public string WidgetPhone { get; set; }
-
-    public Disposition ScrubbedBusinessPhone { get; set; }
-
-    public Disposition ScrubbedRegistrationPhone { get; set; }
-
-    public Disposition ScrubbedWidgetPhone { get; set; }
-
   }
 }

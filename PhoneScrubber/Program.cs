@@ -11,9 +11,11 @@ namespace PhoneScrubber
   class Program
   {
     static Dictionary<string, int> Results = new Dictionary<string, int>() {
-      { "Success", 0 }
+      { "Success", 0 },
+      { "Error", 0 },
     };
     static readonly List<ScrubbedOutput> Output = new List<ScrubbedOutput>();
+    private const string Region = "US";
 
     static void Main(string[] args)
     {
@@ -63,7 +65,6 @@ namespace PhoneScrubber
         Console.WriteLine($"\t{key}: {Results[key]:N0}");
       }
       Console.ResetColor();
-
     }
 
     /// <summary>
@@ -78,46 +79,35 @@ namespace PhoneScrubber
         if (Thread.CurrentThread.Name == null)
           Thread.CurrentThread.Name = Thread.CurrentThread.ManagedThreadId.ToString();
 
-        Parser.ParseRecord(record);
-        ProccessRecordOutput(record);
+        if (!string.IsNullOrWhiteSpace(record.BusinessPhone))
+          ParseNumber(record.CaseSafeID, record.BusinessPhone);
+        if (!string.IsNullOrWhiteSpace(record.WidgetPhone))
+          ParseNumber(record.CaseSafeID, record.WidgetPhone);
+        if (!string.IsNullOrWhiteSpace(record.RegistrationPhone))
+          ParseNumber(record.CaseSafeID, record.RegistrationPhone);
       });
     }
 
-    /// <summary>
-    /// Print phone record to console and add results to Output collection
-    /// </summary>
-    /// <param name="record">instance of a DNCScrub </param>
-    private static void ProccessRecordOutput(DNCScrub record)
+    private static void ParseNumber(string id, string value)
     {
-      void AddResult(string key)
+      try
       {
-        Results.TryGetValue(key, out var i);
-        Results[key] = i + 1;
-      }
-
-      void Check(string id, string original, Disposition d)
-      {
-        if (d.CannotBeParsed)
-        {
-          if (!Results.ContainsKey(d.Value))
-            Results.Add(d.Value, 0);
-          AddResult(d.Value);
-          return;
-        }
-
-        Console.WriteLine($"{original}  ->  {d.Value}");
-        Output.Add(new ScrubbedOutput(id, original, d.Value));
+        var phoneUtil = PhoneNumbers.PhoneNumberUtil.GetInstance();
+        var phone = phoneUtil.Parse(value, Region);
+        Output.Add(new ScrubbedOutput(id, value, phone.NationalNumber.ToString()));
+        Console.WriteLine($"{value}  ->  {phone.NationalNumber}");
         AddResult("Success");
       }
+      catch
+      {
+        AddResult("Error");
+      }
+    }
 
-      if (record.ScrubbedBusinessPhone.CannotBeParsed)
-        Check(record.CaseSafeID, record.BusinessPhone, record.ScrubbedBusinessPhone);
-
-      if (!record.ScrubbedRegistrationPhone.CannotBeParsed)
-        Check(record.CaseSafeID, record.RegistrationPhone, record.ScrubbedRegistrationPhone);
-
-      if (!string.IsNullOrEmpty(record.WidgetPhone))
-        Check(record.CaseSafeID, record.WidgetPhone, record.ScrubbedWidgetPhone);
+    private static void AddResult(string key)
+    {
+      Results.TryGetValue(key, out var i);
+      Results[key] = i + 1;
     }
   }
 }

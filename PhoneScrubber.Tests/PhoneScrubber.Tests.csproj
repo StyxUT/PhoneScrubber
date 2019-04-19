@@ -20,4 +20,7 @@
     <ProjectReference Include="..\PhoneScrubber\PhoneScrubber.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="DispositionTests.cs" />
+  </ItemGroup>
 </Project>
